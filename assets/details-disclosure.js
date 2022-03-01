@@ -2,20 +2,10 @@ class DetailsDisclosure extends HTMLElement {
   constructor() {
     super();
     this.mainDetailsToggle = this.querySelector('details');
+    this.content = this.mainDetailsToggle.querySelector('summary').nextElementSibling;
 
-    this.addEventListener('keyup', this.onKeyUp);
     this.mainDetailsToggle.addEventListener('focusout', this.onFocusOut.bind(this));
-  }
-
-  onKeyUp(event) {
-    if(event.code.toUpperCase() !== 'ESCAPE') return;
-
-    const openDetailsElement = event.target.closest('details[open]');
-    if (!openDetailsElement) return;
-
-    const summaryElement = openDetailsElement.querySelector('summary');
-    openDetailsElement.removeAttribute('open');
-    summaryElement.focus();
+    this.mainDetailsToggle.addEventListener('toggle', this.onToggle.bind(this));
   }
 
   onFocusOut() {
@@ -24,8 +14,19 @@ class DetailsDisclosure extends HTMLElement {
     })
   }
 
+  onToggle() {
+    if (!this.animations) this.animations = this.content.getAnimations();
+
+    if (this.mainDetailsToggle.hasAttribute('open')) {
+      this.animations.forEach(animation => animation.play());
+    } else {
+      this.animations.forEach(animation => animation.cancel());
+    }
+  }
+
   close() {
-    this.mainDetailsToggle.removeAttribute('open')
+    this.mainDetailsToggle.removeAttribute('open');
+    this.mainDetailsToggle.querySelector('summary').setAttribute('aria-expanded', false);
   }
 }
 
